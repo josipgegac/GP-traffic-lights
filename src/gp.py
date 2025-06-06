@@ -1,4 +1,5 @@
 # import traci
+import pickle
 
 import libsumo as traci
 
@@ -25,12 +26,12 @@ def default_gp_params():
             self.min_tree_size = 2
             self.max_tree_size = 5
             self.n_sub_trees = 2     # number of trees per individual
-            self.use_prev_best = False
+            self.use_prev_population = True
 
     return GP_params()
 
 
-def evaluate_individual(individual, sumoCmd, toolbox, statistics_path, simulation_step_limit=10000):
+def evaluate_individual(individual, sumoCmd, toolbox, args, simulation_step_limit=10000):
 
     tl_functions = [toolbox.compile(expr=tree) for tree in individual]
 
@@ -120,7 +121,7 @@ def evaluate_individual(individual, sumoCmd, toolbox, statistics_path, simulatio
     if not simulation_completed:    # return large number as fitness (default 10000)
         return (simulation_step_limit,)
 
-    tree = ET.parse(statistics_path)
+    tree = ET.parse(args.statistics_path)
     root = tree.getroot()
 
     trip_stats = root.find("vehicleTripStatistics")
@@ -223,7 +224,7 @@ def gp_setup(sumoCmd, args, gp_params):
         return (tools.selBest(individuals, elitism_size)
                 + tools.selTournament(individuals, pop_size - elitism_size, tournsize=tournament_size))
 
-    toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, statistics_path=args.statistics_path)
+    toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, args=args)
     toolbox.register("select", selElitistAndTournament, elitism_size=gp_params.elitism_size, tournament_size=gp_params.tournament_size)
     toolbox.register("mate_single_tree", gp.cxOnePoint)
     toolbox.register("mate", multy_tree_crossover, toolbox=toolbox)
@@ -232,19 +233,14 @@ def gp_setup(sumoCmd, args, gp_params):
     toolbox.register("mutate", multy_tree_mutation, toolbox=toolbox)
 
     pop = toolbox.population(n=gp_params.pop_size)
-
-    if gp_params.use_prev_best:
-        with open("best_individual.txt") as f:
-            trees = f.readlines()
-
-            individual = [gp.PrimitiveTree.from_string(tree.strip(), pset) for tree in trees]
-            individual = creator.Individual(individual)
-
-            # evaluate_individual(individual, sumoCmd, toolbox)
-
-            pop[0] = individual
-
     hof = tools.HallOfFame(1)
+
+    if gp_params.use_prev_population:
+        with open(args.population_path, "rb") as f:
+            pop = pickle.load(f)
+        with open(args.hof_path, "rb") as f:
+            hof = pickle.load(f)
+
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", np.mean)
     stats.register("std", np.std)
