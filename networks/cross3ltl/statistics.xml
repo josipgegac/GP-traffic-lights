@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-06-03 22:06:17 by Eclipse SUMO libsumo Version 1.21.0
+<!-- generated on 2025-06-07 16:38:27 by Eclipse SUMO libsumo Version 1.21.0
 This data file and the accompanying materials
 are made available under the terms of the Eclipse Public License v2.0
 which accompanies this distribution, and is available at
@@ -40,13 +40,13 @@ SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-or-later
 -->
 
 <statistics xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/statistic_file.xsd">
-    <performance clockBegin="1474459.54" clockEnd="1474461.72" clockDuration="2.18" traciDuration="0.00" realTimeFactor="2180.06" vehicleUpdatesPerSecond="242254.94" personUpdatesPerSecond="0.00" begin="0.00" end="4746.00" duration="4746.00"/>
+    <performance clockBegin="1800397.79" clockEnd="1800400.72" clockDuration="2.92" traciDuration="0.00" realTimeFactor="1538.99" vehicleUpdatesPerSecond="163562.59" personUpdatesPerSecond="0.00" begin="0.00" end="4500.00" duration="4500.00"/>
     <vehicles loaded="1212" inserted="1212" running="0" waiting="0"/>
     <teleports total="0" jam="0" yield="0" wrongLane="0"/>
     <safety collisions="0" emergencyStops="0" emergencyBraking="0"/>
     <persons loaded="0" running="0" jammed="0"/>
     <personTeleports total="0" abortWait="0" wrongDest="0"/>
-    <vehicleTripStatistics count="1212" routeLength="3243.47" speed="7.58" duration="435.14" waitingTime="121.89" timeLoss="156.29" departDelay="291.19" departDelayWaiting="-1.00" totalTravelTime="527389.00" totalDepartDelay="352921.00"/>
+    <vehicleTripStatistics count="1212" routeLength="3243.47" speed="8.11" duration="394.60" waitingTime="88.45" timeLoss="115.69" departDelay="295.70" departDelayWaiting="-1.00" totalTravelTime="478257.00" totalDepartDelay="358388.00"/>
     <pedestrianStatistics number="0" routeLength="0.00" duration="0.00" timeLoss="0.00"/>
     <rideStatistics number="0"/>
     <transportStatistics number="0"/>

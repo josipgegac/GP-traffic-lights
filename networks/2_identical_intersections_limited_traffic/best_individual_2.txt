@@ -1,0 +1,4 @@
+if_then_else(gt(sub(north_south_rs, west_east_left), True), gt(west_east_rs, 2), False)
+mul(True, sub(north_south_left, lt(sub(north_south_left, lt(sub(sub(sub(north_south_left, not(False)), lt(sub(sub(north_south_left, lt(sub(not(gt(north_south_left, sub(north_south_left, lt(sub(sub(sub(north_south_left, not(False)), lt(sub(sub(north_south_left, lt(sub(not(gt(north_south_left, north_south_rs)), True), north_south_left)), gt(-10, north_south_rs)), north_south_left)), and_(lt(sub(north_south_left, False), north_south_left), True)), west_east_rs)))), True), north_south_left)), gt(-10, north_south_rs)), north_south_left)), and_(lt(sub(north_south_left, False), north_south_left), True)), west_east_rs)), west_east_rs)))
+not(lt(eq(lt(north_south_left, False), lt(True, north_south_left)), north_south_left))
+gt(lt(lt(False, mul(-4, or_(not(True), eq(-8, west_east_left)))), west_east_rs), or_(lt(False, west_east_rs), True))

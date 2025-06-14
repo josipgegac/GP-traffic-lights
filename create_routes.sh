@@ -1,0 +1,2 @@
+network_folder_path="networks/2_identical_intersections"
+python "$SUMO_HOME/tools/randomTrips.py" -n "$network_folder_path/net.net.xml" -b 1000 --period 0.75 --fringe-factor 10 -o "$network_folder_path/trips.trips.xml" --route-file "$network_folder_path/routes.rou.xml"
