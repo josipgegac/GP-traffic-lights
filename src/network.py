@@ -107,11 +107,9 @@ def identical_intersections_data():
 
 def get_network_data(network_folder_path):
 
-    network_name = network_folder_path.split("/")[-1]
-
-    if network_name.startswith("cross3ltl"):
+    if "cross3ltl" in network_folder_path:
         return cross3ltl_data()
-    if network_name.startswith("2_identical_intersections"):
+    if "2_identical_intersections" in network_folder_path:
         return identical_intersections_data()
 
     return None

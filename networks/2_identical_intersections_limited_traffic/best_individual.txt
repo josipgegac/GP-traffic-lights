@@ -1,4 +1,0 @@
-sub(True, not(gt(not(gt(lt(6, False), lt(and_(eq(lt(if_then_else(False, if_then_else(True, west_east_rs, west_east_left), west_east_left), or_(True, False)), north_south_left), eq(north_south_rs, west_east_rs)), west_east_rs))), lt(and_(eq(lt(if_then_else(False, if_then_else(lt(north_south_rs, or_(True, False)), west_east_rs, west_east_left), west_east_left), or_(gt(lt(north_south_rs, False), True), False)), north_south_left), eq(north_south_rs, west_east_rs)), west_east_rs))))
-add(sub(north_south_left, 4), sub(north_south_left, or_(or_(not(gt(True, north_south_rs)), False), or_(or_(not(gt(True, north_south_rs)), False), False))))
-add(not(True), mul(west_east_rs, mul(mul(west_east_rs, west_east_rs), west_east_left)))
-or_(lt(sub(7, sub(False, 7)), north_south_rs), and_(False, False))

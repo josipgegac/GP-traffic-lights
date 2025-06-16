@@ -1,5 +1,5 @@
-import traci
-# import libsumo as traci
+# import traci
+import libsumo as traci
 
 
 import pickle
@@ -36,127 +36,9 @@ def default_gp_params():
 
 
 def evaluate_individual(individual, sumoCmd, toolbox, args,
-                        simulation_step_limit=10000, keep_gp_function_outputs=False):
-
-    tl_functions = [toolbox.compile(expr=tree) for tree in individual]
-
-    function_rs = tl_functions[0]
-    function_left = tl_functions[1]
-
-    network_data = get_network_data(args.network_folder_path)
-    junction_logic_ids = network_data["junction_logic_ids"]
-    junction_ids = network_data["junction_ids"]
-    junction_detectors = network_data["junction_detectors"]
-    junction_detectors_flipped = network_data["junction_detectors_flipped"]
-    junction_optimised_phases_info = network_data["junction_optimised_phases_info"]
-
-    traci.start(sumoCmd)
-
-    junction_phases = {}
-    junction_previous_phase = {}
-    for junction in junction_ids:
-        tls_id = junction_logic_ids[junction]
-        logic = traci.trafficlight.getCompleteRedYellowGreenDefinition(tls_id)[0]
-        junction_phases[junction] = logic.getPhases()
-        junction_previous_phase[junction] = -1
-
-    simulation_completed = True
-    i = 0
-
-    gp_function_outputs = {
-        "function_rs": [],
-        "function_left": []
-    }
-
-    while traci.simulation.getMinExpectedNumber() > 0:
-
-        if i > simulation_step_limit:
-            simulation_completed = False
-            break
-
-        i += 1
-
-        traci.simulationStep()
-
-        for junction in junction_ids:
-
-            tls_id = junction_logic_ids[junction]
-            current_phase = traci.trafficlight.getPhase(tls_id)
-
-            if current_phase != junction_previous_phase[junction]:
-                junction_previous_phase[junction] = current_phase
-
-                if current_phase not in junction_optimised_phases_info[junction]:
-                    continue
-
-                current_phase_info = junction_optimised_phases_info[junction][current_phase]
-                current_phase_direction = current_phase_info["direction"]
-                current_phase_type = current_phase_info["type"]
-
-                if current_phase_direction == "north_south":
-                    detectors = junction_detectors[junction]
-                else:
-                    detectors = junction_detectors_flipped[junction]
-
-                detector_readings_by_type = {}
-
-                for detector_type, detectors_list in detectors.items():
-                    detector_readings = [traci.multientryexit.getLastStepVehicleNumber(d) for d in detectors_list]
-                    readings_sum = sum(detector_readings)
-                    detector_readings_by_type[detector_type] = readings_sum
-
-                if current_phase_type == "right_straight":
-                    phase_function = function_rs
-                else:
-                    phase_function = function_left
-
-                gp_output = phase_function(**detector_readings_by_type)
-                if keep_gp_function_outputs:
-                    if phase_function == function_rs:
-                        gp_function_outputs["function_rs"].append(gp_output)
-                    else:
-                        gp_function_outputs["function_left"].append(gp_output)
-
-                phases = junction_phases[junction]
-
-                phase_duration = phases[current_phase].duration
-                max_duration = phases[current_phase].maxDur
-                min_duration = phases[current_phase].minDur
-
-                new_duration = phase_duration + gp_output
-                if new_duration > max_duration:
-                    new_duration = max_duration
-                if new_duration < min_duration:
-                    new_duration = min_duration
-
-                traci.trafficlight.setPhaseDuration(tls_id, new_duration)
-
-    traci.close()
-
-    if keep_gp_function_outputs:
-        with open(args.gp_function_outputs_path, "wb") as f:
-            pickle.dump(gp_function_outputs, f)
-
-    if not simulation_completed:    # return large number as fitness (default 10000)
-        return (simulation_step_limit,)
-
-    tree = ET.parse(args.statistics_path)
-    root = tree.getroot()
-
-    trip_stats = root.find("vehicleTripStatistics")
-    # if trip_stats is not None:
-    #     for key, value in trip_stats.attrib.items():
-    #         print(f"{key}: {value}")
-
-    time_loss = float(trip_stats.get("timeLoss"))
-    depart_delay = float(trip_stats.get("departDelay"))
-    return (time_loss + depart_delay,)
-
-
-def evaluate_individual_2(individual, sumoCmd, toolbox, args,
-                         simulation_step_limit=10000,
-                         phase_check_period=10,
-                         keep_gp_function_outputs=False):
+                        simulation_step_limit=10000,
+                        phase_check_period=10,
+                        keep_gp_function_outputs=False):
 
     tl_functions = [toolbox.compile(expr=tree) for tree in individual]
 
@@ -388,7 +270,7 @@ def gp_setup(sumoCmd, args, gp_params):
         return (tools.selBest(individuals, elitism_size)
                 + tools.selTournament(individuals, pop_size - elitism_size, tournsize=tournament_size))
 
-    toolbox.register("evaluate", evaluate_individual_2, sumoCmd=sumoCmd, toolbox=toolbox, args=args)
+    toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, args=args)
     toolbox.register("select", selElitistAndTournament, elitism_size=gp_params.elitism_size, tournament_size=gp_params.tournament_size)
     toolbox.register("mate_single_tree", gp.cxOnePoint)
     toolbox.register("mate", multy_tree_crossover, toolbox=toolbox)
@@ -396,8 +278,8 @@ def gp_setup(sumoCmd, args, gp_params):
     toolbox.register("mutate_tree", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
     toolbox.register("mutate", multy_tree_mutation, toolbox=toolbox)
 
-    # toolbox.decorate("mutate_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
-    # toolbox.decorate("mate_single_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
+    toolbox.decorate("mutate_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
+    toolbox.decorate("mate_single_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
 
     pop = toolbox.population(n=gp_params.pop_size)
     hof = tools.HallOfFame(1)

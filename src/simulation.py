@@ -5,7 +5,7 @@ import os
 import libsumo as traci
 import xml.etree.ElementTree as ET
 
-from gp import gp_setup, default_gp_params, evaluate_individual, evaluate_individual_2
+from gp import gp_setup, default_gp_params, evaluate_individual
 
 
 def run_simulation(sumoCmd, statistics_path, simulation_step_limit: int = 10000):
@@ -45,7 +45,7 @@ def run_simulation_with_gp(sumoCmd, individual, args, keep_gp_function_outputs=F
 
     _, toolbox, _, _ = gp_setup(sumoCmd, args, params)
 
-    evaluate_individual_2(individual, sumoCmd, toolbox, args, keep_gp_function_outputs=keep_gp_function_outputs)
+    evaluate_individual(individual, sumoCmd, toolbox, args, keep_gp_function_outputs=keep_gp_function_outputs)
 
     tree = ET.parse(args.statistics_path)
     root = tree.getroot()

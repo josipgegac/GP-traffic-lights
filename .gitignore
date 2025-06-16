@@ -193,6 +193,9 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# SUMO detectors output files
+# SUMO and other output files
 **/detectors.out/
+**/detectors.out.xml
+**/gp_function_outputs.pkl
+**/statistics.xml
 **/visualisations/

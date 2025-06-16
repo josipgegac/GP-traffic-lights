@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='GP evaluate script')
 
     parser.add_argument('seed', type=int, nargs='?', default=None, help='Set seed')
-    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/2_identical_intersections-3", help='Path to network folder')
+    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/cross3ltl-complex_traffic/1", help='Path to network folder')
     parser.add_argument('sumo_config_filename', type=str, nargs='?', default="test.sumocfg", help='Name of the network config file')
     parser.add_argument('statistics_filename', type=str, nargs='?', default="statistics.xml", help='Name of the simulation statistics output file')
     parser.add_argument('population_filename', type=str, nargs='?', default="population.pkl", help='Name of the file that contains the final population')
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     for i in range(len(best_individual)):
         tree = best_individual[i]
         visualisation_path = os.path.join(args.network_folder_path, f"visualisations/{i}")
-        visualise_tree(tree, visualisation_path, view=True)
+        visualise_tree(tree, visualisation_path, view=False)
 
 
     sumoCmd = [
@@ -78,14 +78,14 @@ if __name__ == '__main__':
     # for key, value in trip_stats.items():
     #     print(f"{key}: {value}")
 
-    with open(args.gp_function_outputs_path, "rb") as f:
-        gp_function_outputs = pickle.load(f)
+    # with open(args.gp_function_outputs_path, "rb") as f:
+    #     gp_function_outputs = pickle.load(f)
 
-    for key, value in gp_function_outputs.items():
-        print(f"{key}: {value}")
-        s = pd.Series(value)
-        print(f"unique values: {s.nunique()}")
-        print(s.describe())
-        # print(s.value_counts())
-        print()
+    # for key, value in gp_function_outputs.items():
+    #     print(f"{key}: {value}")
+    #     s = pd.Series(value)
+    #     print(f"unique values: {s.nunique()}")
+    #     print(s.describe())
+    #     # print(s.value_counts())
+    #     print()
 
