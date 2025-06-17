@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='GP run script')
 
     parser.add_argument('seed', type=int, nargs='?', default=None, help='Set seed')
-    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/2_identical_intersections_limited_traffic_period_5-4", help='Path to network folder')
+    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/cross3ltl/1", help='Path to network folder')
     parser.add_argument('sumo_config_filename', type=str, nargs='?', default="test.sumocfg", help='Name of the network config file')
     parser.add_argument('statistics_filename', type=str, nargs='?', default="statistics.xml", help='Name of the simulation statistics output file')
     parser.add_argument('population_filename', type=str, nargs='?', default="population.pkl", help='Name of the file that contains the final population')

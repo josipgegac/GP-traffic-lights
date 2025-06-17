@@ -24,11 +24,16 @@ def default_gp_params():
             self.elitism_size = 1
             self.tournament_size = 7
             self.pop_size = 50
-            self.cross_p = 0.6
-            self.mut_p = 0.4
+            self.cross_p = 0.8
+            self.mut_p = 0.2
             self.n_generations = 50
-            self.min_tree_size = 2
-            self.max_tree_size = 5
+            self.min_initial_tree_depth = 2
+            self.max_initial_tree_depth = 5
+            self.max_tree_depth = 7
+            self.mut_new_tree_p = 0.001
+            self.mut_subtree_min_depth = 0
+            self.mut_subtree_max_depth = 2
+            self.cross_tree_exchange_p = 0.1
             self.n_sub_trees = 2     # number of trees per individual
             self.use_prev_population = False
 
@@ -178,45 +183,47 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     return (time_loss + depart_delay,)
 
 
-def multy_tree_mutation(ind, toolbox, new_tree_p=0.001):
-    new_ind = ind.copy()
-    mut_index = random.randint(0, len(ind)-1)
+def multy_tree_mutation(individual, toolbox, gp_params):
+    new_individual = individual.copy()
 
-    if random.random() < new_tree_p:
-        new_ind[mut_index] = toolbox.subTree()
+    for i in range(len(individual)):
+        r = random.random()
+        if r < gp_params.mut_new_tree_p:
+            new_individual[i] = toolbox.subTree()
+        elif r < gp_params.mut_p:
+            new_individual[i] = toolbox.mutate_tree(new_individual[i])[0]
+
+    return creator.Individual(new_individual),
+
+
+def cross_sub_trees(individual1, individual2, toolbox):
+    new_individual1 = [None] * len(individual1)
+    new_individual2 = [None] * len(individual2)
+
+    for i in range(len(individual1)):
+        tree1 = individual1[i]
+        tree2 = individual2[i]
+        new_individual1[i], new_individual2[i] = toolbox.mate_single_tree(tree1, tree2)
+
+    return creator.Individual(new_individual1), creator.Individual(new_individual2)
+
+def exchange_sub_trees(individual1, individual2):
+    new_individual1 = individual1.copy()
+    new_individual2 = individual2.copy()
+
+    exc_index = random.randint(0, len(individual1) - 1)
+
+    new_individual1[exc_index], new_individual2[exc_index] = new_individual2[exc_index], new_individual1[exc_index]
+
+    return creator.Individual(new_individual1), creator.Individual(new_individual2)
+
+
+def multy_tree_crossover(individual1, individual2, toolbox, gp_params):
+
+    if random.random() < gp_params.cross_tree_exchange_p:
+        return exchange_sub_trees(individual1, individual2)
     else:
-        new_ind[mut_index] = toolbox.mutate_tree(new_ind[mut_index])[0]
-    return creator.Individual(new_ind),
-
-
-def cross_sub_trees(ind1, ind2, toolbox):
-    new_ind1 = [None] * len(ind1)
-    new_ind2 = [None] * len(ind2)
-
-    for i in range(len(ind1)):
-        tree1 = ind1[i]
-        tree2 = ind2[i]
-        new_ind1[i], new_ind2[i] = toolbox.mate_single_tree(tree1, tree2)
-
-    return creator.Individual(new_ind1), creator.Individual(new_ind2)
-
-def exchange_sub_trees(ind1, ind2, toolbox):
-    new_ind1 = ind1.copy()
-    new_ind2 = ind2.copy()
-
-    exc_index = random.randint(0, len(ind1)-1)
-
-    new_ind1[exc_index], new_ind2[exc_index] = new_ind2[exc_index], new_ind1[exc_index]
-
-    return creator.Individual(new_ind1), creator.Individual(new_ind2)
-
-
-def multy_tree_crossover(ind1, ind2, toolbox, tree_exchange_p=0.1):
-
-    if random.random() < tree_exchange_p:
-        return exchange_sub_trees(ind1, ind2, toolbox)
-    else:
-        return cross_sub_trees(ind1, ind2, toolbox)
+        return cross_sub_trees(individual1, individual2, toolbox)
 
 
 def gp_setup(sumoCmd, args, gp_params):
@@ -259,7 +266,7 @@ def gp_setup(sumoCmd, args, gp_params):
     creator.create("SubIndividual", gp.PrimitiveTree)
 
     toolbox = base.Toolbox()
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=gp_params.min_tree_size, max_=gp_params.max_tree_size)
+    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=gp_params.min_initial_tree_depth, max_=gp_params.max_initial_tree_depth)
     toolbox.register("subTree", tools.initIterate, creator.SubIndividual, toolbox.expr)
     toolbox.register("subTreeList", tools.initRepeat, list, toolbox.subTree, n=gp_params.n_sub_trees)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.subTreeList)
@@ -273,13 +280,13 @@ def gp_setup(sumoCmd, args, gp_params):
     toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, args=args)
     toolbox.register("select", selElitistAndTournament, elitism_size=gp_params.elitism_size, tournament_size=gp_params.tournament_size)
     toolbox.register("mate_single_tree", gp.cxOnePoint)
-    toolbox.register("mate", multy_tree_crossover, toolbox=toolbox)
-    toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+    toolbox.register("mate", multy_tree_crossover, toolbox=toolbox, gp_params=gp_params)
+    toolbox.register("expr_mut", gp.genFull, min_=gp_params.mut_subtree_min_depth, max_=gp_params.mut_subtree_max_depth)
     toolbox.register("mutate_tree", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-    toolbox.register("mutate", multy_tree_mutation, toolbox=toolbox)
+    toolbox.register("mutate", multy_tree_mutation, toolbox=toolbox, gp_params=gp_params)
 
-    toolbox.decorate("mutate_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
-    toolbox.decorate("mate_single_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=7))
+    toolbox.decorate("mutate_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=gp_params.max_tree_depth))
+    toolbox.decorate("mate_single_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=gp_params.max_tree_depth))
 
     pop = toolbox.population(n=gp_params.pop_size)
     hof = tools.HallOfFame(1)
@@ -305,11 +312,13 @@ def run_GP(sumoCmd, args, gp_params=None):
 
     pop, toolbox, hof, stats = gp_setup(sumoCmd, args, gp_params)
 
+    # vjerojatnost mutacije postavlja se na 1 jer se koristi posebna funkcija za mutaciju
+    # koja sama osigurava da se mutacija odvija s vjerojatnosti gp_params.mut_p
     pop, log = algorithms.eaSimple(
         pop,
         toolbox,
         gp_params.cross_p,
-        gp_params.mut_p,
+        1,
         gp_params.n_generations,
         stats,
         halloffame=hof,
