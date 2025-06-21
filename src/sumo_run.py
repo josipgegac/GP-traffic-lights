@@ -11,12 +11,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description='GP run script')
 
     parser.add_argument('seed', type=int, nargs='?', default=None, help='Set seed')
-    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/cross3ltl/1", help='Path to network folder')
+    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/2_different_intersections/1 - 100 gen", help='Path to network folder')
     parser.add_argument('sumo_config_filename', type=str, nargs='?', default="test.sumocfg", help='Name of the network config file')
     parser.add_argument('statistics_filename', type=str, nargs='?', default="statistics.xml", help='Name of the simulation statistics output file')
     parser.add_argument('population_filename', type=str, nargs='?', default="population.pkl", help='Name of the file that contains the final population')
     parser.add_argument('hof_filename', type=str, nargs='?', default="hof.pkl", help='Name of the file that contains the final hof (best individual)')
     parser.add_argument('gp_function_outputs', type=str, nargs='?', default="gp_function_outputs.pkl", help='Name of the file with outputs of gp functions')
+    parser.add_argument('phase_check_period', type=int, nargs='?', default=10, help='How often does the controller check if the phase should continue; recomended to use the same value during GP training and evaluation')
+
 
 
     args = parser.parse_args()

@@ -26,7 +26,7 @@ def default_gp_params():
             self.pop_size = 50
             self.cross_p = 0.8
             self.mut_p = 0.2
-            self.n_generations = 50
+            self.n_generations = 100
             self.min_initial_tree_depth = 2
             self.max_initial_tree_depth = 5
             self.max_tree_depth = 7
@@ -34,7 +34,6 @@ def default_gp_params():
             self.mut_subtree_min_depth = 0
             self.mut_subtree_max_depth = 2
             self.cross_tree_exchange_p = 0.1
-            self.n_sub_trees = 2     # number of trees per individual
             self.use_prev_population = False
 
     return GP_params()
@@ -45,10 +44,18 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
                         phase_check_period=10,
                         keep_gp_function_outputs=False):
 
-    tl_functions = [toolbox.compile(expr=tree) for tree in individual]
+    # if not isinstance(individual, gp.PrimitiveTree):
+    #     print(len(individual))
+    #     for sub_individual in individual:
+    #         if not isinstance(sub_individual, gp.PrimitiveTree):
+    #             print(f"\t{len(sub_individual)}")
+    #             for _ in range(len(sub_individual)):
+    #                 print(f"\t\t{1}")
+    #         else:
+    #             print("\t1")
+    # else:
+    #     print("1")
 
-    function_rs = tl_functions[0]
-    function_left = tl_functions[1]
 
     network_data = get_network_data(args.network_folder_path)
     junction_logic_ids = network_data["junction_logic_ids"]
@@ -56,6 +63,28 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     junction_detectors = network_data["junction_detectors"]
     junction_detectors_flipped = network_data["junction_detectors_flipped"]
     junction_optimised_phases_info = network_data["junction_optimised_phases_info"]
+    junction_functions_list_index = network_data["junction_functions_list_index"]
+    junction_function_counts = network_data["junction_function_counts"]
+
+    gp_function_outputs = {}
+    junction_functions = {}
+
+    for junction in junction_ids:
+        junction_index = junction_functions_list_index[junction]
+
+        # ako imamo barem 2 razicita raskrizja znaci da je jedinka lista parova i stabala,
+        # a inace je samo jedan par ili jedinka
+        if isinstance(junction_function_counts, list):
+            functions = individual[junction_index]
+        else:
+            functions = individual
+
+        if not isinstance(functions, gp.PrimitiveTree):
+            gp_function_outputs[junction] = [[] for _ in functions]
+            junction_functions[junction] = [toolbox.compile(expr=tree) for tree in functions]
+        else:
+            gp_function_outputs[junction] = []
+            junction_functions[junction] = toolbox.compile(expr=functions)
 
     traci.start(sumoCmd)
 
@@ -68,18 +97,13 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
         junction_phases[junction] = logic.getPhases()
         junction_previous_phase[junction] = -1
         junction_current_phase_params[junction] = {
-            "max_duration" : None,
-            "min_duration" : None,
-            "time_passed_since_phase_start" : 0
+            "max_duration": None,
+            "min_duration": None,
+            "time_passed_since_phase_start": 0
         }
 
     simulation_completed = True
     i = 0
-
-    gp_function_outputs = {
-        "function_rs": [],
-        "function_left": []
-    }
 
     while traci.simulation.getMinExpectedNumber() > 0:
 
@@ -96,6 +120,7 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
             tls_id = junction_logic_ids[junction]
             current_phase = traci.trafficlight.getPhase(tls_id)
             current_phase_params = junction_current_phase_params[junction]
+            functions = junction_functions[junction]
 
             if current_phase != junction_previous_phase[junction]:
                 # print(f"phase: {current_phase}, time: {i}")
@@ -106,17 +131,17 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
 
                 current_phase_info = junction_optimised_phases_info[junction][current_phase]
                 current_phase_direction = current_phase_info["direction"]
-                current_phase_type = current_phase_info["type"]
+                current_phase_type_index = current_phase_info["type_index"]
 
                 if current_phase_direction == "north_south":
                     detectors = junction_detectors[junction]
                 else:
                     detectors = junction_detectors_flipped[junction]
 
-                if current_phase_type == "right_straight":
-                    phase_function = function_rs
+                if isinstance(functions, list):
+                    phase_function = functions[current_phase_type_index]
                 else:
-                    phase_function = function_left
+                    phase_function = functions
 
                 phases = junction_phases[junction]
 
@@ -141,10 +166,10 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
 
                 gp_output = phase_function(**detector_readings_by_type)
                 if keep_gp_function_outputs:
-                    if phase_function == function_rs:
-                        gp_function_outputs["function_rs"].append(gp_output)
+                    if isinstance(functions, list):
+                        gp_function_outputs[junction][current_phase_type_index].append(gp_output)
                     else:
-                        gp_function_outputs["function_left"].append(gp_output)
+                        gp_function_outputs[junction].append(gp_output)
 
                 new_duration = gp_output
 
@@ -186,14 +211,58 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
 def multy_tree_mutation(individual, toolbox, gp_params):
     new_individual = individual.copy()
 
+    mutation_occurred = False
     for i in range(len(individual)):
         r = random.random()
         if r < gp_params.mut_new_tree_p:
-            new_individual[i] = toolbox.subTree()
-        elif r < gp_params.mut_p:
+            mutation_occurred = True
+            new_individual[i] = toolbox.tree()
+        elif r < gp_params.mut_new_tree_p + gp_params.mut_p:
+            mutation_occurred = True
             new_individual[i] = toolbox.mutate_tree(new_individual[i])[0]
 
-    return creator.Individual(new_individual),
+    # ako nije doslo do mutacije vraca se originalna jedinka kako ju ne bi trebalo ponovno evaluirati
+    if mutation_occurred:
+        return new_individual,
+    else:
+        return individual,
+
+
+def list_of_tree_lists_mutation(individual, toolbox, gp_params):
+    new_individual = individual.copy()
+
+    mutation_occurred = False
+    for i in range(len(individual)):
+        r = random.random()
+        sub_individual = individual[i]
+        if r < gp_params.mut_new_tree_p:
+            mutation_occurred = True
+            if not isinstance(sub_individual, gp.PrimitiveTree):
+                new_individual[i] = toolbox.tree_list(n=len(sub_individual))
+            else:
+                new_individual[i] = toolbox.tree()
+        else:
+            if not isinstance(sub_individual, gp.PrimitiveTree):
+                new_sub_individual = sub_individual.copy()
+
+                for j in range(len(sub_individual)):
+                    r = random.random()
+                    if r < gp_params.mut_new_tree_p:
+                        mutation_occurred = True
+                        new_sub_individual[j] = toolbox.tree()
+                    elif r < gp_params.mut_new_tree_p + gp_params.mut_p:
+                        mutation_occurred = True
+                        new_sub_individual[j] = toolbox.mutate_tree(new_sub_individual[j])[0]
+
+                new_individual[i] = new_sub_individual
+            elif r < gp_params.mut_new_tree_p + gp_params.mut_p:
+                new_individual[i] = toolbox.mutate_tree(new_individual[i])[0]
+
+    # ako nije doslo do mutacije vraca se originalna jedinka kako ju ne bi trebalo ponovno evaluirati
+    if mutation_occurred:
+        return new_individual,
+    else:
+        return individual,
 
 
 def cross_sub_trees(individual1, individual2, toolbox):
@@ -203,11 +272,11 @@ def cross_sub_trees(individual1, individual2, toolbox):
     for i in range(len(individual1)):
         tree1 = individual1[i]
         tree2 = individual2[i]
-        new_individual1[i], new_individual2[i] = toolbox.mate_single_tree(tree1, tree2)
+        new_individual1[i], new_individual2[i] = toolbox.single_tree_crossover(tree1, tree2)
 
-    return creator.Individual(new_individual1), creator.Individual(new_individual2)
+    return new_individual1, new_individual2
 
-def exchange_sub_trees(individual1, individual2):
+def exchange_sub_individuals(individual1, individual2):
     new_individual1 = individual1.copy()
     new_individual2 = individual2.copy()
 
@@ -215,15 +284,53 @@ def exchange_sub_trees(individual1, individual2):
 
     new_individual1[exc_index], new_individual2[exc_index] = new_individual2[exc_index], new_individual1[exc_index]
 
-    return creator.Individual(new_individual1), creator.Individual(new_individual2)
+    return new_individual1, new_individual2
 
 
 def multy_tree_crossover(individual1, individual2, toolbox, gp_params):
 
     if random.random() < gp_params.cross_tree_exchange_p:
-        return exchange_sub_trees(individual1, individual2)
+        return exchange_sub_individuals(individual1, individual2)
     else:
         return cross_sub_trees(individual1, individual2, toolbox)
+
+
+def list_of_tree_lists_crossover(individual1, individual2, toolbox, gp_params):
+    if random.random() < gp_params.cross_tree_exchange_p:
+        new_individual1, new_individual2 =  exchange_sub_individuals(individual1, individual2)
+    else:
+        new_individual1 = [None] * len(individual1)
+        new_individual2 = [None] * len(individual2)
+
+        for i in range(len(individual1)):
+            sub_individual1 = individual1[i]
+            sub_individual2 = individual2[i]
+
+            if not isinstance(sub_individual1, gp.PrimitiveTree):
+                new_individual1[i], new_individual2[i] = multy_tree_crossover(sub_individual1, sub_individual2, toolbox, gp_params)
+            else:
+                new_individual1[i], new_individual2[i] = toolbox.single_tree_crossover(sub_individual1, sub_individual2)
+
+    return new_individual1, new_individual2
+
+
+def create_list_of_tree_lists(toolbox, junction_function_counts):
+    individual = []
+    for n_functions in junction_function_counts:
+        if n_functions == 1:
+            individual.append(toolbox.tree())
+        else:
+            individual.append(toolbox.tree_list(n_functions))
+
+    return individual
+
+
+def mutation_wrapper(individual, mutation_function):
+    return creator.Individual(mutation_function(individual)[0]),
+
+def crossover_wrapper(individual1, individual2, crossover_function):
+    new_individual1, new_individual2 = crossover_function(individual1, individual2)
+    return creator.Individual(new_individual1), creator.Individual(new_individual2)
 
 
 def gp_setup(sumoCmd, args, gp_params):
@@ -235,6 +342,8 @@ def gp_setup(sumoCmd, args, gp_params):
             return output2
 
     network_data = get_network_data(args.network_folder_path)
+    junction_function_counts = network_data["junction_function_counts"]
+
     arg_names = {}
     for i, detector_type in enumerate(network_data["junction_detectors"]["0"].keys()):
         arg_names[f"ARG{i}"] = detector_type
@@ -262,31 +371,48 @@ def gp_setup(sumoCmd, args, gp_params):
     pset.addTerminal(True, Bool)
 
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-    creator.create("Individual", list, fitness=creator.FitnessMin)
-    creator.create("SubIndividual", gp.PrimitiveTree)
 
     toolbox = base.Toolbox()
     toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=gp_params.min_initial_tree_depth, max_=gp_params.max_initial_tree_depth)
-    toolbox.register("subTree", tools.initIterate, creator.SubIndividual, toolbox.expr)
-    toolbox.register("subTreeList", tools.initRepeat, list, toolbox.subTree, n=gp_params.n_sub_trees)
-    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.subTreeList)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.register("tree", tools.initIterate, gp.PrimitiveTree, toolbox.expr)
+    toolbox.register("tree_list", tools.initRepeat, list, toolbox.tree)
+    toolbox.register("list_of_tree_lists", create_list_of_tree_lists, toolbox=toolbox, junction_function_counts=junction_function_counts)
     toolbox.register("compile", gp.compile, pset=pset)
 
     def selElitistAndTournament(individuals, pop_size, elitism_size, tournament_size):
         return (tools.selBest(individuals, elitism_size)
                 + tools.selTournament(individuals, pop_size - elitism_size, tournsize=tournament_size))
 
-    toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, args=args)
+    toolbox.register("evaluate", evaluate_individual, sumoCmd=sumoCmd, toolbox=toolbox, args=args, phase_check_period=args.phase_check_period)
     toolbox.register("select", selElitistAndTournament, elitism_size=gp_params.elitism_size, tournament_size=gp_params.tournament_size)
-    toolbox.register("mate_single_tree", gp.cxOnePoint)
-    toolbox.register("mate", multy_tree_crossover, toolbox=toolbox, gp_params=gp_params)
-    toolbox.register("expr_mut", gp.genFull, min_=gp_params.mut_subtree_min_depth, max_=gp_params.mut_subtree_max_depth)
+    toolbox.register("single_tree_crossover", gp.cxOnePoint)
+    toolbox.register("multy_tree_crossover", multy_tree_crossover, toolbox=toolbox, gp_params=gp_params)
+    toolbox.register("list_of_tree_lists_crossover", list_of_tree_lists_crossover, toolbox=toolbox, gp_params=gp_params)
+    toolbox.register("expr_mut", gp.genHalfAndHalf, min_=gp_params.mut_subtree_min_depth, max_=gp_params.mut_subtree_max_depth)
     toolbox.register("mutate_tree", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-    toolbox.register("mutate", multy_tree_mutation, toolbox=toolbox, gp_params=gp_params)
+    toolbox.register("multy_tree_mutation", multy_tree_mutation, toolbox=toolbox, gp_params=gp_params)
+    toolbox.register("list_of_tree_lists_mutation", list_of_tree_lists_mutation, toolbox=toolbox, gp_params=gp_params)
 
     toolbox.decorate("mutate_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=gp_params.max_tree_depth))
-    toolbox.decorate("mate_single_tree", gp.staticLimit(key=operator.attrgetter("height"), max_value=gp_params.max_tree_depth))
+    toolbox.decorate("single_tree_crossover", gp.staticLimit(key=operator.attrgetter("height"), max_value=gp_params.max_tree_depth))
+
+    if isinstance(junction_function_counts, list):
+        creator.create("Individual", list, fitness=creator.FitnessMin)
+        toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.list_of_tree_lists)
+        toolbox.register("mate", crossover_wrapper, crossover_function=toolbox.list_of_tree_lists_crossover)
+        toolbox.register("mutate", mutation_wrapper, mutation_function=toolbox.list_of_tree_lists_mutation)
+    elif junction_function_counts > 1:
+        creator.create("Individual", list, fitness=creator.FitnessMin)
+        toolbox.register("individual", tools.initIterate, creator.Individual, lambda: toolbox.tree_list(n=junction_function_counts))
+        toolbox.register("mate", crossover_wrapper, crossover_function=toolbox.multy_tree_crossover)
+        toolbox.register("mutate", mutation_wrapper, mutation_function=toolbox.multy_tree_mutation)
+    else:
+        creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
+        toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.tree)
+        toolbox.register("mate", toolbox.single_tree_crossover)
+        toolbox.register("mutate", toolbox.mutate_tree)
+
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
     pop = toolbox.population(n=gp_params.pop_size)
     hof = tools.HallOfFame(1)
@@ -314,11 +440,18 @@ def run_GP(sumoCmd, args, gp_params=None):
 
     # vjerojatnost mutacije postavlja se na 1 jer se koristi posebna funkcija za mutaciju
     # koja sama osigurava da se mutacija odvija s vjerojatnosti gp_params.mut_p
+    # ovo jedino ne vrijedi kada se jedinke sastoje od samo jednog stabla
+    mut_p = 1
+    if isinstance(pop[0], gp.PrimitiveTree):
+        mut_p = gp_params.mut_p
+
+    print(mut_p)
+
     pop, log = algorithms.eaSimple(
         pop,
         toolbox,
         gp_params.cross_p,
-        1,
+        mut_p,
         gp_params.n_generations,
         stats,
         halloffame=hof,
