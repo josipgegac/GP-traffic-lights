@@ -1,0 +1,21 @@
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+   <vType id="SUMO_DEFAULT_TYPE" lcKeepRight="0" lcKeepRightAcceptanceTime = "5.00" lcAssertive = "1.30" carFollowModel="EIDM"/>
+   <route id="always_left" edges="1fi 1si 4o 4fi 4si 2o 2fi 2si 3o 3fi 3si 1o"/>
+   <flow id="always_left" type="SUMO_DEFAULT_TYPE" route="always_left" begin="0" end="1000" period="10"/>
+   <route id="always_right" edges="3fi 3si 2o 2fi 2si 4o 4fi 4si 1o 1fi 1si 3o"/>
+   <flow id="always_right" type="SUMO_DEFAULT_TYPE" route="always_right" begin="0" end="1000" period="10"/>
+   <route id="horizontal" edges="2fi 2si 1o 1fi 1si 2o"/>
+   <flow id="horizontal" type="SUMO_DEFAULT_TYPE" route="horizontal" begin="0" end="1000" period="10"/>
+   <route id="vertical" edges="3fi 3si 4o 4fi 4si 3o"/>
+   <flow id="vertical" type="SUMO_DEFAULT_TYPE" route="vertical" begin="0" end="1000" period="10"/>
+   <route id="vertical_2" edges="4fi 4si 3o 3fi 3si 4o"/>
+   <flow id="vertical_2" type="SUMO_DEFAULT_TYPE" route="vertical_2" begin="0" end="1000" period="10"/>
+
+   <route id="vertical_only" edges="3fi 3si 4o 4fi 4si 3o"/>
+   <flow id="vertical_only" type="SUMO_DEFAULT_TYPE" route="vertical_only" begin="1000" end="3000" period="5"/>
+   <route id="vertical_only_2" edges="4fi 4si 3o 3fi 3si 4o"/>
+   <flow id="vertical_only_2" type="SUMO_DEFAULT_TYPE" route="vertical_only_2" begin="1000" end="2000" period="5"/>
+
+   <route id="always_left_2" edges="3fi 3si 1o"/>
+   <flow id="always_left_2" type="SUMO_DEFAULT_TYPE" route="always_left_2" begin="2000" end="3500" period="5"/>
+</routes>

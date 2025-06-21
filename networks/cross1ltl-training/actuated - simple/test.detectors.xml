@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-04-15 18:04:23 by Eclipse SUMO netedit Version 1.21.0
+-->
+
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Detectors -->
+    <entryExitDetector id="0_north" pos="470.93,555.74" period="300.00" file="detectors.out.xml">
+        <detEntry lane="4i_0" pos="400.00"/>
+        <detExit lane="4i_0" pos="-1.00"/>
+    </entryExitDetector>
+    <entryExitDetector id="0_east" pos="457.01,470.25" period="300.00" file="detectors.out.xml">
+        <detEntry lane="1i_0" pos="400.00"/>
+        <detExit lane="1i_0" pos="-1.00"/>
+    </entryExitDetector>
+    <entryExitDetector id="0_south" pos="534.22,445.62" period="300.00" file="detectors.out.xml">
+        <detEntry lane="3i_0" pos="400.00"/>
+        <detExit lane="3i_0" pos="-1.00"/>
+    </entryExitDetector>
+    <entryExitDetector id="0_west" pos="557.57,525.68" period="300.00" file="detectors.out.xml">
+        <detEntry lane="2i_0" pos="400.00"/>
+        <detExit lane="2i_0" pos="-1.00"/>
+    </entryExitDetector>
+</additional>

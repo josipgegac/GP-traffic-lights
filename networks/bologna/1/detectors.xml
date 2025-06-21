@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-06-21 22:57:43 by Eclipse SUMO GUI Version 1.21.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_buslanes.net.xml"/>
+        <route-files value="C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta.rou.xml,C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_busses.rou.xml"/>
+        <additional-files value="C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_vtypes.add.xml,C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_detectors.add.xml,C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_bus_stops.add.xml,C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\acosta_tls.add.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <log value="C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\sumo_log.txt"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <gui_only>
+        <gui-settings-file value="C:\Users\Jopa\Desktop\FER  Materijali\Diplomski rad\kod\GP-traffic-lights\networks\bologna\1\settings.gui.xml"/>
+    </gui_only>
+
+</sumoConfiguration>

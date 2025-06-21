@@ -1,1 +1,0 @@
-mul(add(n_s, n_s), sub(n_s, w_e))
