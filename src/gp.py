@@ -61,10 +61,10 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     junction_logic_ids = network_data["junction_logic_ids"]
     junction_ids = network_data["junction_ids"]
     junction_detectors = network_data["junction_detectors"]
-    junction_detectors_flipped = network_data["junction_detectors_flipped"]
     junction_optimised_phases_info = network_data["junction_optimised_phases_info"]
     junction_functions_list_index = network_data["junction_functions_list_index"]
     junction_function_counts = network_data["junction_function_counts"]
+    tls_program_index = network_data["tls_program_index"]
 
     gp_function_outputs = {}
     junction_functions = {}
@@ -93,7 +93,7 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     junction_current_phase_params = {}
     for junction in junction_ids:
         tls_id = junction_logic_ids[junction]
-        logic = traci.trafficlight.getCompleteRedYellowGreenDefinition(tls_id)[0]
+        logic = traci.trafficlight.getCompleteRedYellowGreenDefinition(tls_id)[tls_program_index]
         junction_phases[junction] = logic.getPhases()
         junction_previous_phase[junction] = -1
         junction_current_phase_params[junction] = {
@@ -130,13 +130,10 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
                     continue
 
                 current_phase_info = junction_optimised_phases_info[junction][current_phase]
-                current_phase_direction = current_phase_info["direction"]
+                current_phase_direction_index = current_phase_info["direction_index"]
                 current_phase_type_index = current_phase_info["type_index"]
 
-                if current_phase_direction == "north_south":
-                    detectors = junction_detectors[junction]
-                else:
-                    detectors = junction_detectors_flipped[junction]
+                detectors = junction_detectors[current_phase_direction_index][junction]
 
                 if isinstance(functions, list):
                     phase_function = functions[current_phase_type_index]
@@ -343,9 +340,10 @@ def gp_setup(sumoCmd, args, gp_params):
 
     network_data = get_network_data(args.network_folder_path)
     junction_function_counts = network_data["junction_function_counts"]
+    detectors = network_data["junction_detectors"][0]
 
     arg_names = {}
-    for i, detector_type in enumerate(network_data["junction_detectors"]["0"].keys()):
+    for i, detector_type in enumerate(detectors[next(iter(detectors))].keys()):
         arg_names[f"ARG{i}"] = detector_type
 
     # Define primitive set
