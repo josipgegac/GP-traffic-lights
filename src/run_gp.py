@@ -1,7 +1,6 @@
 import argparse
 import os
 import pickle
-import random
 
 from simulation import run_simulation
 from gp import run_GP
@@ -18,8 +17,6 @@ def parse_args():
     parser.add_argument('hof_filename', type=str, nargs='?', default="hof.pkl", help='Name of the file that contains the final hof (best individual)')
     parser.add_argument('gp_function_outputs', type=str, nargs='?', default="gp_function_outputs.pkl", help='Name of the file with outputs of gp functions')
     parser.add_argument('phase_check_period', type=int, nargs='?', default=10, help='How often does the controller check if the phase should continue; recomended to use the same value during GP training and evaluation')
-
-
 
     args = parser.parse_args()
 

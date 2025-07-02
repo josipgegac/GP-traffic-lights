@@ -2,12 +2,9 @@ import argparse
 import os
 import pickle
 
-import re
 import graphviz
 import pandas as pd
 from deap import gp, creator, base
-
-
 
 from simulation import run_simulation_with_gp
 
@@ -84,6 +81,7 @@ if __name__ == '__main__':
             visualise_tree(best_individual, visualisation_path, view=False)
 
 
+    # Import traci instead of libsumo in gp.py in order to use sumo-gui
     sumoCmd = [
         "sumo-gui", "-c", args.sumo_config_path,
         "--statistic-output", args.statistics_path

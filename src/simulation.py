@@ -1,7 +1,4 @@
-# import traci
-import argparse
-import os
-
+# import traci # Uncomment this line and comment the next if you want to use sumo-gui.
 import libsumo as traci
 import xml.etree.ElementTree as ET
 

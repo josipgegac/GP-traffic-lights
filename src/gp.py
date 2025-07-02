@@ -1,4 +1,4 @@
-# import traci
+# import traci # Uncomment this line and comment the next if you want to use sumo-gui.
 import libsumo as traci
 
 
@@ -59,8 +59,8 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     for junction in junction_ids:
         junction_index = junction_functions_list_index[junction]
 
-        # ako imamo barem 2 razicita raskrizja znaci da je jedinka lista parova i stabala,
-        # a inace je samo jedan par ili jedinka
+        # If there are at least 2 different intersections in the network an individual is a list that contains pairs or
+        # individual trees. Otherwise, an individual is just a pair or a tree.
         if isinstance(junction_function_counts, list):
             functions = individual[junction_index]
         else:
@@ -201,7 +201,6 @@ def multy_tree_mutation(individual, toolbox, gp_params):
             mutation_occurred = True
             new_individual[i] = toolbox.mutate_tree(new_individual[i])[0]
 
-    # ako nije doslo do mutacije vraca se originalna jedinka kako ju ne bi trebalo ponovno evaluirati
     if mutation_occurred:
         return new_individual,
     else:
@@ -238,7 +237,6 @@ def list_of_tree_lists_mutation(individual, toolbox, gp_params):
             elif r < gp_params.mut_new_tree_p + gp_params.mut_p:
                 new_individual[i] = toolbox.mutate_tree(new_individual[i])[0]
 
-    # ako nije doslo do mutacije vraca se originalna jedinka kako ju ne bi trebalo ponovno evaluirati
     if mutation_occurred:
         return new_individual,
     else:
@@ -419,9 +417,8 @@ def run_GP(sumoCmd, args, gp_params=None):
 
     pop, toolbox, hof, stats = gp_setup(sumoCmd, args, gp_params)
 
-    # vjerojatnost mutacije postavlja se na 1 jer se koristi posebna funkcija za mutaciju
-    # koja sama osigurava da se mutacija odvija s vjerojatnosti gp_params.mut_p
-    # ovo jedino ne vrijedi kada se jedinke sastoje od samo jednog stabla
+    # Mutation probability is set to 1 becouse a special mutation function is used which ensures that mutation
+    # occurs with probability gp_params.mut_p. This is not the case only when an individual is just a tree.
     mut_p = 1
     if isinstance(pop[0], gp.PrimitiveTree):
         mut_p = gp_params.mut_p
