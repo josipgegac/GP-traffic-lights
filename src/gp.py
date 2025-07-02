@@ -44,19 +44,6 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
                         phase_check_period=10,
                         keep_gp_function_outputs=False):
 
-    # if not isinstance(individual, gp.PrimitiveTree):
-    #     print(len(individual))
-    #     for sub_individual in individual:
-    #         if not isinstance(sub_individual, gp.PrimitiveTree):
-    #             print(f"\t{len(sub_individual)}")
-    #             for _ in range(len(sub_individual)):
-    #                 print(f"\t\t{1}")
-    #         else:
-    #             print("\t1")
-    # else:
-    #     print("1")
-
-
     network_data = get_network_data(args.network_folder_path)
     junction_logic_ids = network_data["junction_logic_ids"]
     junction_ids = network_data["junction_ids"]
@@ -123,7 +110,6 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
             functions = junction_functions[junction]
 
             if current_phase != junction_previous_phase[junction]:
-                # print(f"phase: {current_phase}, time: {i}")
                 junction_previous_phase[junction] = current_phase
 
                 if current_phase not in junction_optimised_phases_info[junction]:
@@ -196,9 +182,6 @@ def evaluate_individual(individual, sumoCmd, toolbox, args,
     root = tree.getroot()
 
     trip_stats = root.find("vehicleTripStatistics")
-    # if trip_stats is not None:
-    #     for key, value in trip_stats.attrib.items():
-    #         print(f"{key}: {value}")
 
     time_loss = float(trip_stats.get("timeLoss"))
     depart_delay = float(trip_stats.get("departDelay"))

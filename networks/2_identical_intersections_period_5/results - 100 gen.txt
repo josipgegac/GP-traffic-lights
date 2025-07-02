@@ -12,7 +12,23 @@ train:
     average = 376.352
     stdev = 28.25674202734631
 
-cross3ltl-training:
+
+testcase 1:
+    static: 970.79
+    actuated: 532.61
+
+    722.51,
+    563.9300000000001,
+    934.06,
+    693.16,
+    675.74
+
+    best = 563.9300000000001
+    average = 717.88
+    stdev = 134.9469245666606
+
+
+testcase 2 - cross3ltl:
     static: 379.97
     actuated: 54.209999999999994
 
@@ -26,7 +42,23 @@ cross3ltl-training:
     average = 85.566
     stdev = 27.14936518594864
 
-cross3ltl-complex_traffic:
+
+testcase 3 - different intersections:
+    static: 1142.65
+    actuated: 601.3
+
+    501.23,
+    610.21,
+    570.3,
+    636.38,
+    568.36
+
+	best = 501.23
+	average = 577.296
+	stdec = 51.20811195504087
+
+
+testcase extra - cross3ltl-complex_traffic:
     static: 1446.29
     actuated: 660.0699999999999
 

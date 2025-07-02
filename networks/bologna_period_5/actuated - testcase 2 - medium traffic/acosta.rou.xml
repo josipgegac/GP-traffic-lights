@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-06-30 14:19:42 by Eclipse SUMO netedit Version 1.21.0
+-->
+
+<routes>
+    <!-- Vehicles, persons and containers (sorted by depart) -->
+    <flow id="210ss_221ss_235sl" type="private" begin="0.00" departLane="best" from="210" to="114" via="43[0] 43[1] 201 201c 204a[0] 124" end="3600.00" probability="0.125"/>
+    <flow id="210ss_221ss_235ss" type="private" begin="0.00" departLane="best" from="210" to="204[1][1]" via="43[0] 43[1] 201 201c 204a[0] 204b[0] 204[1][0]" end="3600.00" probability="0.125"/>
+    <flow id="210wl_221ss_235sl" type="private" begin="0.00" departLane="best" from="91" to="114" via="186 109[0] 109[1][0]+20003 109[1][1] 116 46 201 201c 204a[0] 124" end="3600.00" probability="0.02"/>
+    <flow id="210wl_221ss_235ss" type="private" begin="0.00" departLane="best" from="91" to="204[1][1]" via="186 109[0] 109[1][0]+20003 109[1][1] 116 46 201 201c 204a[0] 204b[0] 204[1][0]" end="3600.00" probability="0.02"/>
+    <flow id="210wr" type="private" begin="0.00" departLane="best" from="91" to="209" via="186 109[0] 109[1][0]+20003 109[1][1] 116 46 113" end="3600.00" probability="0.04"/>
+    <flow id="210ws" type="private" begin="0.00" departLane="best" from="91" to="134b" via="186 109[0] 109[1][0]+20003 109[1][1] 116 46 134" end="3600.00" probability="0.04"/>
+    <flow id="219el" type="private" begin="0.00" departLane="best" from="17" to="67" via="71" end="3600.00" probability="0.08"/>
+    <flow id="219es" type="private" begin="0.00" departLane="best" from="17" to="86" via="71" end="3600.00" probability="0.165"/>
+    <flow id="219nr" type="private" begin="0.00" departLane="best" from="83" to="86" via="12" end="3600.00" probability="0.04"/>
+    <flow id="219ns" type="private" begin="0.00" departLane="best" from="83" to="67" via="12" end="3600.00" probability="0.08"/>
+    <flow id="219sl" type="private" begin="0.00" departLane="best" from="68" to="86" via="11" end="3600.00" probability="0.165"/>
+    <flow id="219sr" type="private" begin="0.00" departLane="best" from="68" to="72[0]" via="11" end="3600.00" probability="0.04"/>
+    <flow id="219ss" type="private" begin="0.00" departLane="best" from="68" to="84" via="11" end="3600.00" probability="0.04"/>
+    <flow id="219ws_220ws_221_wl_235sl" type="private" begin="0.00" departLane="best" from="85" to="114" via="72[0] 72[1] 69 161 122 1b 1 204a[0] 124" end="3600.00" probability="0.075"/>
+    <flow id="219ws_220ws_221_wl_235ss" type="private" begin="0.00" departLane="best" from="85" to="204[1][1]" via="72[0] 72[1] 69 161 122 1b 1 204a[0] 204b[0] 204[1][0]" end="3600.00" probability="0.075"/>
+    <flow id="219ws_220ws_221_wr_210ns" type="private" begin="0.00" departLane="best" from="85" to="209" via="72[0] 72[1] 69 161 122 3 2 202 34 113" end="3600.00" probability="0.15"/>
+    <flow id="219ws_220ws_221_ws" type="private" begin="0.00" departLane="best" from="85" to="4c" via="72[0] 72[1] 69 161 122 3 2 4" end="3600.00" probability="0.075"/>
+    <flow id="210el" type="private" begin="0.00" departLane="best" fromJunction="133-begin" toJunction="209-end" end="3600.00" probability="0.04"/>
+    <flow id="210er_221sr" type="private" begin="0.00" departLane="best" fromJunction="133-begin" toJunction="4-end" end="3600.00" probability="0.04"/>
+    <flow id="210sl" type="private" begin="0.00" departLane="best" fromJunction="210-begin" toJunction="51" end="3600.00" probability="0.125"/>
+    <flow id="219wl" type="private" begin="0.00" departLane="best" fromJunction="85-begin" toJunction="57" end="3600.00" probability="0.125"/>
+    <flow id="235ns_221ns_210nl" type="private" begin="0.00" departLane="best" fromJunction="203-begin" toJunction="133-begin" end="3600.00" probability="0.01"/>
+    <flow id="235ns_221ns_210nr" type="private" begin="0.00" departLane="best" fromJunction="203-begin" toJunction="51" end="3600.00" probability="0.125"/>
+    <flow id="235ns_221ns_210ns" type="private" begin="0.00" departLane="best" fromJunction="203-begin" toJunction="209-end" end="3600.00" probability="0.25"/>
+    <flow id="210wr_2" type="private" begin="0.00" departLane="best" fromJunction="131-begin" toJunction="209-end" end="3600.00" probability="0.125"/>
+</routes>

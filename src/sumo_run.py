@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='GP run script')
 
     parser.add_argument('seed', type=int, nargs='?', default=None, help='Set seed')
-    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/2_identical_intersections/testcase 1", help='Path to network folder')
+    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/bologna_period_10/1 - 200 gen", help='Path to network folder')
     parser.add_argument('sumo_config_filename', type=str, nargs='?', default="test.sumocfg", help='Name of the network config file')
     parser.add_argument('statistics_filename', type=str, nargs='?', default="statistics.xml", help='Name of the simulation statistics output file')
     parser.add_argument('population_filename', type=str, nargs='?', default="population.pkl", help='Name of the file that contains the final population')
@@ -50,9 +50,6 @@ if __name__ == '__main__':
     print(f"timeLoss: {trip_stats.get('timeLoss')}")
     print(f"departDelay: {trip_stats.get('departDelay')}")
     print(f"timeLoss + departDelay: {float(trip_stats.get('timeLoss')) + float(trip_stats.get('departDelay'))}")
-    # for key, value in trip_stats.items():
-    #     print(f"{key}: {value}")
-
 
     pop, stats, hof = run_GP(sumoCmd, args)
 

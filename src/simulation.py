@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from gp import gp_setup, default_gp_params, evaluate_individual
 
 
-def run_simulation(sumoCmd, statistics_path, simulation_step_limit: int = 15000):
+def run_simulation(sumoCmd, statistics_path, simulation_step_limit: int = 50000):
 
     traci.start(sumoCmd)
 
@@ -30,29 +30,26 @@ def run_simulation(sumoCmd, statistics_path, simulation_step_limit: int = 15000)
     root = tree.getroot()
 
     trip_stats = root.find('vehicleTripStatistics')
-    # if trip_stats is not None:
-    #     for key, value in trip_stats.attrib.items():
-    #         print(f"{key}: {value}")
-
-
 
     return trip_stats
 
 
-def run_simulation_with_gp(sumoCmd, individual, args, keep_gp_function_outputs=False):
+def run_simulation_with_gp(sumoCmd, individual, args, keep_gp_function_outputs=False, simulation_step_limit=15000):
 
     params = default_gp_params()
 
     _, toolbox, _, _ = gp_setup(sumoCmd, args, params)
 
-    evaluate_individual(individual, sumoCmd, toolbox, args, phase_check_period=args.phase_check_period, keep_gp_function_outputs=keep_gp_function_outputs)
+    fintess_value = evaluate_individual(individual, sumoCmd, toolbox, args,
+                                        phase_check_period=args.phase_check_period,
+                                        keep_gp_function_outputs=keep_gp_function_outputs,
+                                        simulation_step_limit=simulation_step_limit)
+    if fintess_value == simulation_step_limit:
+        print("\nSimulation did not finish.\n")
 
     tree = ET.parse(args.statistics_path)
     root = tree.getroot()
 
     trip_stats = root.find('vehicleTripStatistics')
-    # if trip_stats is not None:
-    #     for key, value in trip_stats.attrib.items():
-    #         print(f"{key}: {value}")
 
     return trip_stats

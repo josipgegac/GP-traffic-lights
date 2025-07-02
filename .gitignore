@@ -199,3 +199,4 @@ cython_debug/
 **/gp_function_outputs.pkl
 **/statistics.xml
 **/visualisations/
+**/sumo_log.txt
