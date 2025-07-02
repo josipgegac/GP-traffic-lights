@@ -3,6 +3,257 @@ import json
 import os
 
 
+def different_intersections_data_for_testcase_4_identical_intersections():
+    junction_ids = ["0", "1"]
+    # kljucevi se moraju podudarati za sva krizanja jer su oni imena ulaza u gp programe,
+    # a postoji samo jedan set primitiva (ogranicenje DEAP-a)
+    junction_detectors_north_south = {
+        "0": {
+            "north_south_rs": ["0_north_right", "0_north_straight", "0_south_right", "0_south_straight"],
+            "north_south_left": ["0_north_left", "0_south_left"],
+            "west_east_rs": ["0_west_right", "0_west_straight", "0_east_right", "0_east_straight"],
+            "west_east_left": ["0_west_left", "0_east_left"],
+        },
+        "1": {
+            "north_south_rs": ["1_north_right", "1_north_straight", "1_south_right", "1_south_straight"],
+            "north_south_left": ["1_north_left", "1_south_left"],
+            "west_east_rs": ["1_west_right", "1_west_straight", "1_east_right", "1_east_straight"],
+            "west_east_left": ["1_west_left", "1_east_left"],
+        }
+    }
+
+    junction_detectors_west_east = copy.deepcopy(junction_detectors_north_south)
+    for junction, detectors in junction_detectors_west_east.items():
+        detectors["north_south_rs"], detectors["west_east_rs"] = detectors["west_east_rs"], detectors["north_south_rs"]
+        detectors["north_south_left"], detectors["west_east_left"] = detectors["west_east_left"], detectors["north_south_left"]
+
+    junction_detectors = [junction_detectors_north_south, junction_detectors_west_east]
+
+    junction_logic_ids = {"0": "0", "1": "1"}
+
+    junction_optimised_phases_info = {
+        "0": {
+            0: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "right_straight",
+                "type_index": 0},
+            2: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "left",
+                "type_index": 1},
+            4: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "right_straight",
+                "type_index": 0},
+            6: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "left",
+                "type_index": 1},
+        },
+        "1": {
+            0: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "right_straight",
+                "type_index": 0},
+            2: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "left",
+                "type_index": 1},
+            4: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "right_straight",
+                "type_index": 0},
+            6: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "left",
+                "type_index": 1},
+        }
+    }
+
+    junction_functions_list_index = {"0": 0, "1": 0}
+    junction_function_counts = [2, 1]
+
+    tls_program_index = 0
+
+    network_data = {
+        "junction_ids": junction_ids,
+        "junction_detectors": junction_detectors,
+        "junction_logic_ids": junction_logic_ids,
+        "junction_optimised_phases_info": junction_optimised_phases_info,
+        "junction_functions_list_index": junction_functions_list_index,
+        "junction_function_counts": junction_function_counts,
+        "tls_program_index": tls_program_index,
+    }
+
+    return network_data
+
+
+def different_intersections_data_for_testcase_3_cross3():
+    junction_ids = ["0"]
+    # kljucevi se moraju podudarati za sva krizanja jer su oni imena ulaza u gp programe,
+    # a postoji samo jedan set primitiva (ogranicenje DEAP-a)
+    junction_detectors_north_south = {
+        "0": {
+            "north_south_rs": ["0_north_right", "0_north_straight", "0_south_right", "0_south_straight"],
+            "north_south_left": ["0_north_left", "0_south_left"],
+            "west_east_rs": ["0_west_right", "0_west_straight", "0_east_right", "0_east_straight"],
+            "west_east_left": ["0_west_left", "0_east_left"],
+        }
+    }
+
+    junction_detectors_west_east = copy.deepcopy(junction_detectors_north_south)
+    for junction, detectors in junction_detectors_west_east.items():
+        detectors["north_south_rs"], detectors["west_east_rs"] = detectors["west_east_rs"], detectors["north_south_rs"]
+        detectors["north_south_left"], detectors["west_east_left"] = detectors["west_east_left"], detectors["north_south_left"]
+
+    junction_detectors = [junction_detectors_north_south, junction_detectors_west_east]
+
+    junction_logic_ids = {"0": "0"}
+
+    junction_optimised_phases_info = {
+        "0": {
+            0: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "right_straight",
+                "type_index": 0},
+            2: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "left",
+                "type_index": 1},
+            4: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "right_straight",
+                "type_index": 0},
+            6: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "left",
+                "type_index": 1},
+        }
+    }
+
+    junction_functions_list_index = {"0": 0}
+    junction_function_counts = [2, 1]
+
+    tls_program_index = 0
+
+    network_data = {
+        "junction_ids": junction_ids,
+        "junction_detectors": junction_detectors,
+        "junction_logic_ids": junction_logic_ids,
+        "junction_optimised_phases_info": junction_optimised_phases_info,
+        "junction_functions_list_index": junction_functions_list_index,
+        "junction_function_counts": junction_function_counts,
+        "tls_program_index": tls_program_index,
+    }
+
+    return network_data
+
+
+def different_intersections_data_for_testcase_2_cross1ltl():
+    junction_ids = ["0"]
+    # kljucevi se moraju podudarati za sva krizanja jer su oni imena ulaza u gp programe,
+    # a postoji samo jedan set primitiva (ogranicenje DEAP-a)
+    junction_detectors_north_south = {
+        "0": {
+            "north_south_rs": ["0_north", "0_south"],
+            "north_south_left": ["0_north", "0_south"],
+            "west_east_rs": ["0_west", "0_east"],
+            "west_east_left": ["0_west", "0_east"],
+        }
+    }
+
+    junction_detectors_west_east = copy.deepcopy(junction_detectors_north_south)
+    for junction, detectors in junction_detectors_west_east.items():
+        detectors["north_south_rs"], detectors["west_east_rs"] = detectors["west_east_rs"], detectors["north_south_rs"]
+        detectors["north_south_left"], detectors["west_east_left"] = detectors["west_east_left"], detectors["north_south_left"]
+
+    junction_detectors = [junction_detectors_north_south, junction_detectors_west_east]
+
+    junction_logic_ids = {"0": "0"}
+
+    junction_optimised_phases_info = {
+        "0": {
+            0: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "right_straight",
+                "type_index": 0},
+            4: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "right_straight",
+                "type_index": 0},
+        }
+    }
+
+    junction_functions_list_index = {"0": 1}
+    junction_function_counts = [2, 1]
+
+    tls_program_index = 0
+
+    network_data = {
+        "junction_ids": junction_ids,
+        "junction_detectors": junction_detectors,
+        "junction_logic_ids": junction_logic_ids,
+        "junction_optimised_phases_info": junction_optimised_phases_info,
+        "junction_functions_list_index": junction_functions_list_index,
+        "junction_function_counts": junction_function_counts,
+        "tls_program_index": tls_program_index,
+    }
+
+    return network_data
+
+
+def cross1ltl_data_for_testcase_2_different_intersections():
+
+    junction_ids = ["1"]
+    junction_detectors_north_south = {
+        "1": {
+            "north_south_rs": ["1_north", "1_south"],
+            "north_south_left": ["1_north", "1_south"],
+            "west_east_rs": ["1_west", "1_east"],
+            "west_east_left": ["1_west", "1_east"],
+        }
+    }
+
+    junction_detectors_west_east = copy.deepcopy(junction_detectors_north_south)
+    for junction, detectors in junction_detectors_west_east.items():
+        detectors["north_south_rs"], detectors["west_east_rs"] = detectors["west_east_rs"], detectors["north_south_rs"]
+        detectors["north_south_left"], detectors["west_east_left"] = detectors["west_east_left"], detectors["north_south_left"]
+
+    junction_detectors = [junction_detectors_north_south, junction_detectors_west_east]
+
+    junction_logic_ids = {"1": "1"}
+
+    junction_optimised_phases_info = {
+        "1": {
+            0: {"direction": "north_south",
+                "direction_index": 0,
+                "type": "right_straight",
+                "type_index": 0},
+            4: {"direction": "west_east",
+                "direction_index": 1,
+                "type": "right_straight",
+                "type_index": 0},
+        }
+    }
+
+    junction_functions_list_index = {"1": 0}
+    junction_function_counts = 1
+
+    tls_program_index = 0
+
+    network_data = {
+        "junction_ids": junction_ids,
+        "junction_detectors": junction_detectors,
+        "junction_logic_ids": junction_logic_ids,
+        "junction_optimised_phases_info": junction_optimised_phases_info,
+        "junction_functions_list_index": junction_functions_list_index,
+        "junction_function_counts": junction_function_counts,
+        "tls_program_index": tls_program_index,
+    }
+
+    return network_data
+
+
 def cross1ltl_data():
 
     junction_ids = ["0"]
