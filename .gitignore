@@ -196,6 +196,7 @@ cython_debug/
 # SUMO and other output files
 **/detectors.out/
 **/detectors.out.xml
+**/detectors.xml
 **/gp_function_outputs.pkl
 **/statistics.xml
 **/visualisations/

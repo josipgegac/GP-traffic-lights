@@ -26,7 +26,7 @@ def default_gp_params():
             self.pop_size = 50
             self.cross_p = 0.8
             self.mut_p = 0.2
-            self.n_generations = 100
+            self.n_generations = 200
             self.min_initial_tree_depth = 2
             self.max_initial_tree_depth = 5
             self.max_tree_depth = 7
@@ -417,13 +417,11 @@ def run_GP(sumoCmd, args, gp_params=None):
 
     pop, toolbox, hof, stats = gp_setup(sumoCmd, args, gp_params)
 
-    # Mutation probability is set to 1 becouse a special mutation function is used which ensures that mutation
+    # Mutation probability is set to 1 because a special mutation function is used which ensures that mutation
     # occurs with probability gp_params.mut_p. This is not the case only when an individual is just a tree.
     mut_p = 1
     if isinstance(pop[0], gp.PrimitiveTree):
         mut_p = gp_params.mut_p
-
-    print(mut_p)
 
     pop, log = algorithms.eaSimple(
         pop,

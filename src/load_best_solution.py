@@ -4,6 +4,9 @@ import pickle
 
 import graphviz
 import pandas as pd
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 from deap import gp, creator, base
 
 from simulation import run_simulation_with_gp
@@ -13,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='GP evaluate script')
 
     parser.add_argument('seed', type=int, nargs='?', default=None, help='Set seed')
-    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/bologna_period_10/1 - 200 gen", help='Path to network folder')
+    parser.add_argument('network_folder_path', type=str, nargs='?', default="../networks/cross1ltl_period_10/test", help='Path to network folder')
     parser.add_argument('sumo_config_filename', type=str, nargs='?', default="test.sumocfg", help='Name of the network config file')
     parser.add_argument('statistics_filename', type=str, nargs='?', default="statistics.xml", help='Name of the simulation statistics output file')
     parser.add_argument('population_filename', type=str, nargs='?', default="population.pkl", help='Name of the file that contains the final population')
@@ -22,6 +25,8 @@ def parse_args():
     parser.add_argument('phase_check_period', type=int, nargs='?', default=10, help='How often does the controller check if the phase should continue; recomended to use the same value during GP training and evaluation')
     parser.add_argument('visualise_trees', type=bool, nargs='?', default=True, help='If true tree visualisations get saved as .png files in "visualisations" folder inside the network folder')
     parser.add_argument('print_gp_function_outputs', type=bool, nargs='?', default=False, help='Print all GP function outputs obtained during the simulation, as well as some statistics')
+    parser.add_argument('show_fitness_through_generations', type=bool, nargs='?', default=False, help='Plot a graph of the fitness through generations')
+    parser.add_argument('n_generations', type=int, nargs='?', default=200, help='Number of generations to plot')
 
     args = parser.parse_args()
 
@@ -117,3 +122,37 @@ if __name__ == '__main__':
                     # print("\t" + str(s.value_counts()))
                     print()
             print()
+
+
+    if args.show_fitness_through_generations:
+        n_generations = args.n_generations
+
+        fitness_values = []
+        for i in range(n_generations):
+            print(f"Generation {i + 1}")
+
+            gp_output_path = os.path.join(args.network_folder_path, "gp_output")
+
+            hof_path = os.path.join(gp_output_path, f"{args.hof_filename.replace('.pkl', f'{i+1}.pkl')}")
+
+            with open(hof_path, 'rb') as f:
+                hof = pickle.load(f)
+
+            best_individual = hof[0]
+            trip_stats = run_simulation_with_gp(sumoCmd, best_individual, args,
+                                                keep_gp_function_outputs=args.print_gp_function_outputs)
+
+            fitness = float(trip_stats.get('timeLoss')) + float(trip_stats.get('departDelay'))
+            fitness_values.append(fitness)
+
+        fitness_values_path = os.path.join(args.network_folder_path, "fitness_values.pkl")
+        with open(fitness_values_path, "wb") as f:
+            pickle.dump(fitness_values, f)
+
+        print(fitness_values)
+        plt.plot(fitness_values)
+        plt.xlabel('Generation')  # X-axis label
+        plt.ylabel('Fitness Value')  # Y-axis label
+        plt.title('Fitness Over Generations')  # Plot title
+        plt.grid(True)
+        plt.show()
